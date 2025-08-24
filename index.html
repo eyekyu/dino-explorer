@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dinosaur Explorer — Mini-Site</title>
+<link rel="stylesheet" href="explorer-shared.css">
+<style>
+  :root { --bg:#0b1020; --ink:#eef1ff; --muted:#a9b3d1; --accent:#7aa2ff; --card:#111836; }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(180deg,#0b1020,#0a1230);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial}
+  .wrap{max-width:900px;margin:0 auto;padding:24px}
+  h1{margin:6px 0 6px;font-size:clamp(24px,4vw,40px)}
+  p{color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  .card{border:1px solid #223060;background:linear-gradient(180deg,#111836,#0e1533);border-radius:18px;padding:18px}
+  a.button{display:inline-block;margin-top:8px;padding:10px 14px;border-radius:12px;border:1px solid #2a3a6f;background:#142150;color:var(--ink);text-decoration:none;font-weight:700}
+  a.button:hover{background:#18275f}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🦕 Dinosaur Explorer — Mini-Site</h1>
+  <p>Both pages auto-load <code>dinosaurs_sample.csv</code> if it’s present (already bundled here). No manual upload needed.</p>
+  <div class="grid">
+    <section class="card">
+      <h2>Cards (Kids Edition)</h2>
+      <p>Big pictures and simple facts with filters.</p>
+      <a class="button" href="dinosaur_explorer_kids.html">Open Kids Edition</a>
+    </section>
+    <section class="card">
+      <h2>Timeline View</h2>
+      <p>Interactive time slider with color-coded clades and <strong>thumbnails</strong> in the table.</p>
+      <a class="button" href="dinosaur_explorer_timeline.html">Open Timeline</a>
+    </section>
+  </div>
+</div>
+</body>
+</html>

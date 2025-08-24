@@ -1,0 +1,40 @@
+:root {
+  --bg:#0b1020; --ink:#eef1ff; --muted:#a9b3d1; --accent:#7aa2ff; --card:#111836;
+  --border:#1b2958; --panel:#0e1a3d;
+}
+* { box-sizing:border-box; }
+body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial; background:linear-gradient(180deg,#0b1020,#0a1230); color:var(--ink); }
+a { color:var(--accent); text-decoration:none; }
+
+header { position:sticky; top:0; background:#0c1330cc; backdrop-filter: blur(6px); border-bottom:1px solid #1e2b55; z-index:10; }
+.wrap { max-width:1200px; margin:0 auto; padding:16px; }
+h1 { margin:6px 0 12px; font-size:clamp(22px,3.5vw,34px); }
+
+.controls { display:grid; gap:12px; align-items:end; }
+.controls label { font-size:12px; color:var(--muted); display:block; margin-bottom:6px; }
+.controls input[type="text"], .controls select, .controls input[type="range"] {
+  width:100%; padding:10px 12px; border-radius:12px; border:1px solid #263464; background:var(--panel); color:var(--ink); outline:none;
+}
+.controls .btn, .btn {
+  padding:10px 14px; border-radius:12px; border:1px solid #2a3a6f; background:#142150; color:var(--ink); cursor:pointer; font-weight:600;
+}
+.controls .btn:hover, .btn:hover { background:#18275f; }
+
+.card { border:1px solid #223060; background:linear-gradient(180deg,#111836,#0e1533); border-radius:18px; overflow:hidden; box-shadow: 0 10px 20px rgba(0,0,0,.25); }
+.imgwrap { background:#0a1230; aspect-ratio: 4/3; display:flex; align-items:center; justify-content:center; }
+.badge { display:inline-block; padding:4px 10px; border-radius:999px; background:#101c47; border:1px solid #2a3a6f; color:#cfe0ff; font-size:12px; margin-right:6px; margin-top:6px; }
+.pill { border:1px solid #2a3a6f; background:#0e1a3d; padding:2px 8px; border-radius:999px; font-size:12px; margin-right:6px; }
+.muted { color:var(--muted); font-size:13px; }
+
+.table { margin-top:16px; background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+.row { display:grid; grid-template-columns: 44px 1.2fr 1fr 1fr 1fr 1fr; padding:10px 12px; border-top:1px solid var(--border); }
+.row.head { background:var(--panel); font-weight:700; position:sticky; top:0; }
+
+.legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+.legend span { font-size:12px; border:1px solid #2a3a6f; background:#0e1a3d; padding:4px 10px; border-radius:999px; }
+
+@media (max-width:900px) {
+  .controls { grid-template-columns: 1fr 1fr; }
+  .row { grid-template-columns: 44px 1fr 1fr; }
+  .hide-sm { display:none; }
+}

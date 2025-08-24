@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dinosaur Explorer — Kids Edition</title>
+<link rel="stylesheet" href="explorer-shared.css">
+<script src="explorer-shared.js"></script>
+<style>
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:16px; margin-top:20px; }
+.genus { font-weight:700; font-size:18px; margin-bottom:6px; }
+.row { margin-top:4px; }
+.links { color:var(--accent); text-decoration:none; }
+.content { padding:12px 14px 14px; }
+.imgwrap img { width:100%; height:100%; object-fit:cover; display:block; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>🦖 Dinosaur Explorer — Kids Edition</h1>
+    <div class="controls" style="grid-template-columns: 1fr 0.8fr 0.8fr 0.8fr;">
+      <div><label for="q">Search</label><input id="q" type="text" placeholder="Try: Triceratops, Asia…"></div>
+      <div><label for="diet">Diet</label>
+        <select id="diet"><option value="">Any</option><option>herbivore</option><option>carnivore</option><option>omnivore</option></select>
+      </div>
+      <div><label for="period">Period</label>
+        <select id="period"><option value="">Any</option><option>Triassic</option><option>Jurassic</option><option>Cretaceous</option></select>
+      </div>
+      <div><label for="clade">Clade</label><input id="clade" type="text" placeholder="Type group name…"></div>
+    </div>
+    <div id="count">Loading…</div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="grid" class="grid"></div>
+</main>
+
+<script>
+const q=document.getElementById('q'),diet=document.getElementById('diet'),period=document.getElementById('period'),clade=document.getElementById('clade');
+const grid=document.getElementById('grid'),count=document.getElementById('count');
+
+let rows=[];
+function card(rec,i){
+  const id=`img_${i}`;
+  const svg=`data:image/svg+xml;utf8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#172448"/><stop offset="1" stop-color="#0b1330"/></linearGradient></defs><rect width="640" height="420" fill="url(#g)"/><g fill="#7aa2ff" opacity=".9"><path d="M60,320 Q240,180 360,260 Q440,300 580,290 Q520,330 450,340 Q360,350 280,330 Q200,310 120,350 Z"/></g></svg>')}`;
+  return `<article class="card">
+    <div class="imgwrap">
+      <a href="${rec.page_url||'#'}" target="_blank" rel="noopener">
+        <img id="${id}" alt="Image of ${rec.genus}" loading="lazy" referrerpolicy="no-referrer" src="${svg}">
+        <span id="${id}_ph" class="muted">(upgrading image…)</span>
+      </a>
+    </div>
+    <div class="content">
+      <div class="genus"><a class="links" href="${rec.page_url}" target="_blank" rel="noopener">${rec.genus}</a></div>
+      <div class="row"><span class="badge">${rec.clade}</span><span class="pill">${rec.status||''}</span></div>
+      <div class="row muted">🕰 ${rec.time_period} • ${rec.age_range_mya}</div>
+      <div class="row muted">🌍 ${rec.regions}</div>
+      <div class="row">🍽 <strong>${rec.diet}</strong></div>
+    </div>
+  </article>`;
+}
+async function hydrateImages(rs){
+  rs.forEach(async(rec,i)=>{
+    const img=document.getElementById(`img_${i}`),ph=document.getElementById(`img_${i}_ph`);
+    if(!img||!ph) return;
+    const withTimeout = (p, ms=6000) => Promise.race([ p, new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), ms)) ]);
+    try{
+      const url = await withTimeout(Explorer.resolvePaleoartImage(rec));
+      if(url){ img.src=url; ph.remove(); }
+      else { ph.textContent='(open page for images)'; }
+    }catch{ ph.textContent='(open page for images)'; }
+  });
+}
+function render(rs){ count.textContent=`${rs.length} dinosaurs shown`; grid.innerHTML=rs.map((r,i)=>card(r,i)).join(''); hydrateImages(rs); }
+function filter(rs){
+  const needle=q.value.trim().toLowerCase(),wantDiet=diet.value.trim().toLowerCase(),wantPeriod=period.value.trim().toLowerCase(),wantClade=clade.value.trim().toLowerCase();
+  return rs.filter(r=>{
+    if(needle && !(r.genus+" "+r.regions+" "+r.time_period).toLowerCase().includes(needle)) return false;
+    if(wantDiet && (r.diet||'').toLowerCase()!=wantDiet) return false;
+    if(wantPeriod && (r.time_period||'').toLowerCase()!=wantPeriod) return false;
+    if(wantClade && (r.clade||'').toLowerCase()!=wantClade) return false;
+    return true;
+  });
+}
+function useCSV(text){
+  const need=["genus","clade","time_period","age_range_mya","regions","diet","status","page_url","image_url"];
+  const {ok,rows:raw}=Explorer.csvToRows(text,need);
+  if(!ok){count.textContent="CSV missing required headers.";grid.innerHTML="";return;}
+  rows=raw; render(filter(rows));
+}
+[q,diet,period,clade].forEach(el=>el.addEventListener('input',()=>render(filter(rows))));
+
+(async function loadCSV(){
+  const attempts=['dinosaurs_sample.csv','../output/dinosaurs_sample.csv'];
+  for(const url of attempts){
+    try{ const r=await fetch(url); if(r.ok){ useCSV(await r.text()); return; } }catch{}
+  }
+  // Fallback to the tiny built-in demo if not found
+  useCSV(`genus,clade,time_period,age_range_mya,regions,diet,status,page_url,image_url
+Tyrannosaurus,Theropod,Late Cretaceous,68–66 Mya,North America,carnivore,valid,https://en.wikipedia.org/wiki/Tyrannosaurus,
+Triceratops,Ceratopsian,Late Cretaceous,68–66 Mya,North America,herbivore,valid,https://en.wikipedia.org/wiki/Triceratops,
+Stegosaurus,Stegosaur,Late Jurassic,155–150 Mya,North America,herbivore,valid,https://en.wikipedia.org/wiki/Stegosaurus,
+Velociraptor,Dromaeosaur,Late Cretaceous,75–71 Mya,Asia,carnivore,valid,https://en.wikipedia.org/wiki/Velociraptor,`);
+  count.textContent += " (demo data)";
+})();
+</script>
+</body>
+</html>
